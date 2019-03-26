@@ -7,8 +7,7 @@
  */
 
 import React, { Component } from "react";
-import { Text, View, StyleSheet, TextInput, Button, Switch, ScrollView, FlatList } from "react-native";
-import { ListItem, List } from "react-native-elements";
+import { Text, View, StyleSheet, TextInput, Button, Switch, FlatList } from "react-native";
 
 class Todo extends Component {
   render() {
@@ -18,7 +17,7 @@ class Todo extends Component {
         {currentEditId === id ? (
           <View style={styles.TodoContainer}>
             <TextInput
-              style={{ borderColor: "black", borderWidth: 1, borderRadius: 4, flex: 1, paddingHorizontal: 10 }}
+              style={styles.editedText}
               value={this.props.editText}
               onChangeText={this.props.onEditTextChange}
             />
@@ -149,10 +148,25 @@ export default class first extends Component {
     );
   };
 
+  getData = () => {
+    switch (this.state.filter) {
+      case "ALL":
+        return this.state.todoCollection;
+
+      case "COMPLETE":
+        return this.state.todoCollection.filter(todo => todo.checked);
+
+      case "PENDING":
+        return this.state.todoCollection.filter(todo => !todo.checked);
+
+      default:
+        return this.state.todoCollection;
+    }
+  };
   render() {
     return (
       <View style={{ padding: 40, flex: 1 }}>
-        <View style={{ flexDirection: "row" }}>
+        <View style={styles.filters}>
           <Button
             onPress={() => {
               this.setState({
@@ -160,6 +174,7 @@ export default class first extends Component {
               });
             }}
             title="All"
+            style={styles.ButtonAll}
           />
           <Button
             onPress={() => {
@@ -180,7 +195,7 @@ export default class first extends Component {
         </View>
 
         <TextInput
-          style={{ height: 50, borderColor: "black", borderWidth: 1, borderRadius: 4, padding: 10 }}
+          style={styles.inputValue}
           placeholder="What to do next ??"
           onChangeText={text => this.setState({ val: text })}
           value={this.state.val}
@@ -192,39 +207,14 @@ export default class first extends Component {
 
         <Button onPress={() => this.done()} title="DoneAll" />
 
+        <FlatList
+          data={this.getData()}
+          renderItem={this.renderTodos}
+          ListHeaderComponent={() => this.renderHeader()}
+          ListFooterComponent={() => this.renderFooter()}
+          keyExtractor={item => item.key.toString()}
+        />
 
-        {this.state.filter === "ALL"
-          ? (console.log("all is called "),
-            (
-              <FlatList
-                data={this.state.todoCollection}
-                renderItem={this.renderTodos}
-                ListHeaderComponent={() => this.renderHeader()}
-                ListFooterComponent={() => this.renderFooter()}
-                keyExtractor={item => item.key.toString()}
-              />
-            ))
-          : this.state.filter === "COMPLETE"
-          ? (console.log("complete is called "),
-            (
-              <FlatList
-                data={this.state.todoCollection.filter(todo => todo.checked)}
-                renderItem={this.renderTodos}
-                ListHeaderComponent={() => this.renderHeader()}
-                ListFooterComponent={() => this.renderFooter()}
-                keyExtractor={item => item.key.toString()}
-              />
-            ))
-          : (console.log("pending is called "),
-            (
-              <FlatList
-                data={this.state.todoCollection.filter(todo => !todo.checked)}
-                renderItem={this.renderTodos}
-                ListHeaderComponent={() => this.renderHeader()}
-                ListFooterComponent={() => this.renderFooter()}
-                keyExtractor={item => item.key.toString()}
-              />
-            ))}
         <View style={styles.footer}>
           <Text>Completed tasks = {this.state.todoCollection.filter(todo => todo.checked).length}</Text>
           <Text>Pending tasks = {this.state.todoCollection.filter(todo => !todo.checked).length}</Text>
@@ -245,5 +235,28 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: "center",
     justifyContent: "flex-end"
+  },
+  filters: {
+    flexDirection: "row",
+    justifyContent: "space-around"
+  },
+  ButtonAll: {
+    borderColor: "black",
+    borderWidth: 1,
+    borderRadius: 4
+  },
+  editedText: {
+    borderColor: "black",
+    borderWidth: 1,
+    borderRadius: 4,
+    flex: 1,
+    paddingHorizontal: 10
+  },
+  inputValue: {
+    height: 50,
+    borderColor: "black",
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: 10
   }
 });
