@@ -7,7 +7,7 @@
  */
 
 import React, { Component } from "react";
-import { Text, View, StyleSheet, TextInput, Button, Switch, ScrollView } from "react-native";
+import { Text, View, StyleSheet, TextInput, Button, Switch, ScrollView, FlatList } from "react-native";
 
 class Todo extends Component {
   render() {
@@ -61,6 +61,18 @@ export default class first extends Component {
     }
   };
 
+  done = () => {
+    this.setState({
+      todoCollection: this.state.todoCollection.map(todo => {
+        return {
+          key: todo.key,
+          checked: true,
+          val: todo.val
+        };
+      })
+    });
+  };
+
   remove = key => {
     this.setState({
       todoCollection: this.state.todoCollection.filter(todo => todo.key !== key)
@@ -98,39 +110,66 @@ export default class first extends Component {
       })
     });
   };
+
+  renderTodos = obj => {
+    return (
+      <Todo
+        val={obj.item.val}
+        key={obj.item.key}
+        id={obj.item.key}
+        currentEditId={this.state.currentEditId}
+        onDel={() => this.remove(obj.item.key)}
+        checked={obj.item.checked}
+        toggleChecked={() => this.toggleChecked(obj.item.key)}
+        onEdit={() => this.setState({ currentEditId: obj.item.key, editText: obj.item.val })}
+        onSaveEdit={() => this.edit(obj.item.key)}
+        onEditTextChange={value => {
+          this.setState({ editText: value });
+        }}
+        editText={this.state.editText}
+      />
+    );
+  };
+
+  renderHeader = () => {
+    return (
+      <View>
+        <Text>Start of List</Text>
+      </View>
+    );
+  };
+
+  renderFooter = () => {
+    return (
+      <View>
+        <Text>End of List</Text>
+      </View>
+    );
+  };
+
   render() {
     return (
       <View style={{ padding: 40, flex: 1 }}>
         <TextInput
-          style={{ height: 100 }}
+          style={{ height: 50, borderColor: "black", borderWidth: 1, borderRadius: 4, padding: 10 }}
           placeholder="What to do next ??"
           onChangeText={text => this.setState({ val: text })}
           value={this.state.val}
         />
 
-        <Button onPress={this.add} title="AddItem" />
+        <Button onPress={() => this.add()} title="AddItem" />
 
-        <Button onPress={this.clearArray} title="ClearAll" />
+        <Button onPress={() => this.clearArray()} title="ClearAll" />
 
-        <ScrollView style={{ paddingBottom: 10 }}>
-          {this.state.todoCollection.map(item => (
-            <Todo
-              val={item.val}
-              key={item.key}
-              id={item.key}
-              currentEditId={this.state.currentEditId}
-              onDel={() => this.remove(item.key)}
-              checked={item.checked}
-              toggleChecked={() => this.toggleChecked(item.key)}
-              onEdit={() => this.setState({ currentEditId: item.key, editText: item.val })}
-              onSaveEdit={() => this.edit(item.key)}
-              onEditTextChange={value => {
-                this.setState({ editText: value });
-              }}
-              editText={this.state.editText}
-            />
-          ))}
-        </ScrollView>
+        <Button onPress={() => this.done()} title="DoneAll" />
+
+        <FlatList
+          data={this.state.todoCollection}
+          renderItem={this.renderTodos}
+          ListHeaderComponent={() => this.renderHeader()}
+          ListFooterComponent={() => this.renderFooter()}
+          keyExtractor={item => item.key.toString()}
+        />
         <View style={styles.footer}>
           <Text>Completed tasks = {this.state.todoCollection.filter(todo => todo.checked).length}</Text>
           <Text>Pending tasks = {this.state.todoCollection.filter(todo => !todo.checked).length}</Text>
@@ -143,15 +182,6 @@ export default class first extends Component {
 // style property
 
 const styles = StyleSheet.create({
-  cont: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center"
-  },
-  image: {
-    height: 100,
-    width: 200
-  },
   TodoContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
