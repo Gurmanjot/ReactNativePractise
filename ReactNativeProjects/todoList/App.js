@@ -8,6 +8,7 @@
 
 import React, { Component } from "react";
 import { Text, View, StyleSheet, TextInput, Button, Switch, ScrollView, FlatList } from "react-native";
+import { ListItem, List } from "react-native-elements";
 
 class Todo extends Component {
   render() {
@@ -43,7 +44,8 @@ export default class first extends Component {
     val: "",
     todoCollection: [],
     currentEditId: undefined,
-    editText: ""
+    editText: "",
+    filter: "ALL"
   };
 
   clearArray = () => {
@@ -150,6 +152,33 @@ export default class first extends Component {
   render() {
     return (
       <View style={{ padding: 40, flex: 1 }}>
+        <View style={{ flexDirection: "row" }}>
+          <Button
+            onPress={() => {
+              this.setState({
+                filter: "ALL"
+              });
+            }}
+            title="All"
+          />
+          <Button
+            onPress={() => {
+              this.setState({
+                filter: "COMPLETE"
+              });
+            }}
+            title="Completed"
+          />
+          <Button
+            onPress={() => {
+              this.setState({
+                filter: "PENDING"
+              });
+            }}
+            title="Pending"
+          />
+        </View>
+
         <TextInput
           style={{ height: 50, borderColor: "black", borderWidth: 1, borderRadius: 4, padding: 10 }}
           placeholder="What to do next ??"
@@ -163,13 +192,39 @@ export default class first extends Component {
 
         <Button onPress={() => this.done()} title="DoneAll" />
 
-        <FlatList
-          data={this.state.todoCollection}
-          renderItem={this.renderTodos}
-          ListHeaderComponent={() => this.renderHeader()}
-          ListFooterComponent={() => this.renderFooter()}
-          keyExtractor={item => item.key.toString()}
-        />
+
+        {this.state.filter === "ALL"
+          ? (console.log("all is called "),
+            (
+              <FlatList
+                data={this.state.todoCollection}
+                renderItem={this.renderTodos}
+                ListHeaderComponent={() => this.renderHeader()}
+                ListFooterComponent={() => this.renderFooter()}
+                keyExtractor={item => item.key.toString()}
+              />
+            ))
+          : this.state.filter === "COMPLETE"
+          ? (console.log("complete is called "),
+            (
+              <FlatList
+                data={this.state.todoCollection.filter(todo => todo.checked)}
+                renderItem={this.renderTodos}
+                ListHeaderComponent={() => this.renderHeader()}
+                ListFooterComponent={() => this.renderFooter()}
+                keyExtractor={item => item.key.toString()}
+              />
+            ))
+          : (console.log("pending is called "),
+            (
+              <FlatList
+                data={this.state.todoCollection.filter(todo => !todo.checked)}
+                renderItem={this.renderTodos}
+                ListHeaderComponent={() => this.renderHeader()}
+                ListFooterComponent={() => this.renderFooter()}
+                keyExtractor={item => item.key.toString()}
+              />
+            ))}
         <View style={styles.footer}>
           <Text>Completed tasks = {this.state.todoCollection.filter(todo => todo.checked).length}</Text>
           <Text>Pending tasks = {this.state.todoCollection.filter(todo => !todo.checked).length}</Text>
