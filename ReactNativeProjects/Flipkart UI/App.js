@@ -7,12 +7,12 @@
  */
 
 import React, { Component } from "react";
-import { createAppContainer, createDrawerNavigator } from "react-navigation";
+import { createAppContainer, createDrawerNavigator, createSwitchNavigator } from "react-navigation";
+import { Text } from "react-native";
 import MyHomeScreen from "./FlipkartUi";
 import List from "./TodoList";
-
 const MyDrawerNavigator = createDrawerNavigator({
-  Home: MyHomeScreen,
+  Homeaa: MyHomeScreen,
   TodoList: List
 });
 
